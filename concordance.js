@@ -1,24 +1,20 @@
 var bible;
-var bibleArr = [];
-var verses = [];
-var books = [];
+var bibleObj= {};
 (function ($) {
     $(document).ready(function () {
-        // var bible;
-        // var bibleArr = [];
-        // var verses = [];
-        // var books = [];
         $.ajax({
             url : "kjv.txt",
             success : function (data) {
-                bible = data.replace(/\r/g, "").replace(/(\w)([\n])(\w)/g, "$1 $3");
-                // $('#Bible').html(bible);
-                bibleArr = bible.split(/[\n]+/);
-                bibleArr.forEach(function(line) {
+                var currentBook;
+                var bookNum = 0;
+                bible =  data.split(/[\n]+/);
+                bible.forEach(function(line) {
                     if (/^[\d]+\:[\d]+/.test(line.trim())) {
-                        verses.push(line);
+                        bibleObj[bookNum + " " + currentBook].push(line);
                     } else {
-                        books.push(line);
+                        currentBook = line.trim();
+                        bookNum++;
+                        bibleObj[bookNum + " " + currentBook] = [];
                     }
                 });
             }
