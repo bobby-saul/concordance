@@ -3,7 +3,7 @@ var bibleObj= {};
 (function ($) {
     $(document).ready(function () {
         $.ajax({
-            url : "working2.txt",
+            url : "kjv.txt",
             success : function (data) {
                 var currentBook;
                 var bookNum = 0;
