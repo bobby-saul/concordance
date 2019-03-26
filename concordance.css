@@ -11,3 +11,7 @@ button {
     opacity: 0.25;
     pointer-events: none;
 }
+
+.highlight {
+    background-color: #eeff00;
+}

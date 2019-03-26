@@ -1,11 +1,12 @@
-var bible;
-var bibleObj= {};
 (function ($) {
     $(document).ready(function () {
         // Global variables
+        var bible;
+        var bibleObj= {};
         var perPage = 50;
         var found = [];
         var page = 0;
+        var searchTerm;
 
         // Get text and setup object
         $.ajax({
@@ -29,6 +30,18 @@ var bibleObj= {};
             }
         });
 
+        function regReplace(match) {
+            return "<span class='highlight'>" + match + "</span>"
+        }
+
+        function formatVerse(verse) {
+            var htmlString = "<span tabindex=0 class='verse-link' data-book='" + verse[0] + "' data-verse='" + verse[1] + "'>" + verse[0] + "</span> ";
+
+            htmlString += verse[2].replace(new RegExp("(" + searchTerm + ")", "gi"), regReplace);
+
+            return htmlString;
+        }
+
         function showResults() {
             var lastPage = Math.ceil(found.length / perPage) - 1;
 
@@ -46,7 +59,7 @@ var bibleObj= {};
             $(".result").attr("start", (page * perPage + 1));
             for (var x = perPage * (page); x < (perPage * (page + 1)); x ++){
                 if (x < found.length) {
-                    $(".result").append("<li class='found-verse'>" + found[x] + "</li>");
+                    $(".result").append("<li class='found-verse'>" + formatVerse(found[x]) + "</li>");
                 } else {
                     break;
                 }
@@ -56,12 +69,16 @@ var bibleObj= {};
         // search function
         function search() {
             found = []; // clear global found array
-            var phrase = $("#Search").val().toLowerCase();
+            searchTerm = $("#Search").val().toLowerCase();
             
             for ( var book in bibleObj) {
-                bibleObj[book].verses.forEach(function (verse) {
-                    if (verse.toLowerCase().indexOf(phrase) !== -1) {
-                        found.push(bibleObj[book].title + " " + verse);
+                bibleObj[book].verses.forEach(function (verse, index) {
+                    if (verse.toLowerCase().indexOf(searchTerm) !== -1) {
+                        found.push([
+                            bibleObj[book].title,
+                            index,
+                            verse
+                        ]);
                     }
                 });
             }
