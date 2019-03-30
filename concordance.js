@@ -9,26 +9,30 @@
         var searchTerm;
 
         // Get text and setup object
-        $.ajax({
-            url : "kjv.txt",
-            success : function (data) {
-                var currentBook;
-                var bookNum = 0;
-                bible =  data.split(/[\n]+/);
-                bible.forEach(function(line) {
-                    if (/^[\d]+\:[\d]+/.test(line.trim())) {
-                        bibleObj[bookNum].verses.push(line);
-                    } else {
-                        currentBook = line.trim();
-                        bookNum++;
-                        bibleObj[bookNum] = {
-                            title: currentBook,
-                            verses: []
-                        };
-                    }
-                });
-            }
-        });
+        function getBibleText() {
+            var bibleText = $("#version").val();
+            $.ajax({
+                url : bibleText,
+                success : function (data) {
+                    var currentBook;
+                    var bookNum = 0;
+                    bible =  data.split(/[\n]+/);
+                    bible.forEach(function(line) {
+                        if (/^[\d]+\:[\d]+/.test(line.trim())) {
+                            bibleObj[bookNum].verses.push(line);
+                        } else {
+                            currentBook = line.trim();
+                            bookNum++;
+                            bibleObj[bookNum] = {
+                                title: currentBook,
+                                verses: []
+                            };
+                        }
+                    });
+                }
+            });
+        }
+        getBibleText();
 
         function regReplace(match) {
             return "<span class='highlight'>" + match + "</span>"
@@ -68,6 +72,12 @@
             }
         }
 
+        // change per page
+        function changePerPage () {
+            perPage = parseInt($("#per-page").val());
+            showResults();
+        }
+
         // search function
         function search() {
             found = []; // clear global found array
@@ -90,6 +100,8 @@
             showResults();
         }
 
+        $("#version").on("change", getBibleText);
+        $("#per-page").on("change", changePerPage);
         $("#Search-Button").on("click", search);
         $("#Search").on("keydown", function (event) {
             if (event.keyCode === 13) {
