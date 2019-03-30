@@ -16,14 +16,19 @@
             </div>
         </div>
 
-        <div class="search-results">
+        <details class="search-results">
+            <summary>Search Results</summary>
             <ol class="result"></ol>
             <div class="pager">
-                    <button class="previous disabled">Previous</button>
-                    <span class="page-count"></span>
-                    <button class="next disabled">Next</button>
+                    <button class="search-previous disabled">Previous</button>
+                    <span class="search-page-count">Page
+                        <input type="number" step="1" min="1" max="1" class="search-current-page" value="1">
+                        /
+                        <span class="search-total-pages">1</span>
+                    </span>
+                    <button class="search-next disabled">Next</button>
             </div>
-        </div>
+        </details>
         
         <div id="Reader" class="reader">
             <div class="title"></div>

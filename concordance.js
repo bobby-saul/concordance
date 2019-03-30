@@ -45,16 +45,18 @@
         function showResults() {
             var lastPage = Math.ceil(found.length / perPage) - 1;
 
-            $(".next").removeClass("disabled");
-            $(".previous").removeClass("disabled");
+            $(".search-next").removeClass("disabled");
+            $(".search-previous").removeClass("disabled");
             if (page === 0) {
-                $(".previous").addClass("disabled");
+                $(".search-previous").addClass("disabled");
             }
             if (lastPage === page) {
-                $(".next").addClass("disabled");
+                $(".search-next").addClass("disabled");
             }
 
-            $(".page-count").text("Page " + (page + 1) + "/" + (lastPage + 1));
+            $(".search-current-page").val(page + 1);
+            $(".search-current-page").attr("max", lastPage + 1);
+            $(".search-total-pages").text(lastPage + 1);
             $(".result").html("");
             $(".result").attr("start", (page * perPage + 1));
             for (var x = perPage * (page); x < (perPage * (page + 1)); x ++){
@@ -84,6 +86,7 @@
             }
 
             page = 0;
+            $(".search-results").attr("open", true);
             showResults();
         }
 
@@ -93,17 +96,21 @@
                 search();
             }
         });
-        $(".next").on("click", function(e) {
+        $(".search-next").on("click", function(e) {
             if (!$(this).hasClass("disabled")) {
                 page++;
                 showResults();
             }
         });
-        $(".previous").on("click", function(e) {
+        $(".search-previous").on("click", function(e) {
             if (!$(this).hasClass("disabled")) {
                 page--;
                 showResults();
             }
         });
+        $(".search-current-page").on("change", function(e) {
+            page = parseInt($(this).val()) - 1;
+            showResults();
+        })
     });
 })(jQuery)
