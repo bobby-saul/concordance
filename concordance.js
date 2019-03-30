@@ -51,9 +51,9 @@
 
         // function format verse for search
         function formatVerse(verse) {
-            var htmlString = "<span tabindex=0 class='verse-link' data-book='" + verse[0] + "' data-verse='" + verse[1] + "'>" + verse[0] + "</span> ";
+            var htmlString = "<span tabindex=0 class='verse-link' data-book='" + verse[0] + "' data-verse='" + verse[1] + "'>" + verse[2] + "</span> ";
 
-            htmlString += verse[2].replace(new RegExp("(" + searchTerm + ")", "gi"), regReplace);
+            htmlString += verse[3].replace(new RegExp("(" + searchTerm + ")", "gi"), regReplace);
 
             return htmlString;
         }
@@ -89,6 +89,21 @@
                     break;
                 }
             }
+            // set function for the verse links
+            $(".verse-link").on("click", function() {
+                var bookIndex = $(this).data("book");
+                var verseIndex = $(this).data("verse");
+
+                // set book
+                $("#book").val(parseInt(bookIndex));
+                readerBook = parseInt(bookIndex);
+
+                // set page to have verse
+                var pageIndex = Math.floor(parseInt(verseIndex / perPage));
+                readerPage = pageIndex;
+
+                showReader();
+            })
         }
 
         // function update reader text
@@ -147,8 +162,9 @@
                 bibleObj[book].verses.forEach(function (verse, index) {
                     if (verse.toLowerCase().indexOf(searchTerm) !== -1) {
                         found.push([
-                            bibleObj[book].title,
+                            book,
                             index,
+                            bibleObj[book].title,
                             verse
                         ]);
                     }
