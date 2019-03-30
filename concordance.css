@@ -15,3 +15,15 @@ button {
 .highlight {
     background-color: #eeff00;
 }
+
+.verse-link {
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    border: none;
+    font-size: 1em;
+}
+.verse-link:hover,
+.verse-link:focus {
+    text-decoration: underline;
+}

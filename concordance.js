@@ -9,6 +9,48 @@
         var searchTerm;
         var readerBook = 1;
         var readerPage = 0;
+        var version = "kjv.txt";
+
+        // get initial cookies
+        var cookies = document.cookie.split(";");
+        cookies.forEach(function (cookie) {
+            var keyvalue = cookie.split("=");
+            if (keyvalue.length > 1) {
+                var key = keyvalue[0].trim();
+                var value = keyvalue[1].trim();
+                switch (key) {
+                    case "perPage":
+                        perPage = parseInt(decodeURIComponent(value), 10);
+                        break;
+                    case "version":
+                        version = decodeURIComponent(value);
+                        break;
+                    case "reader":
+                        var reader = decodeURIComponent(value).split("-");
+                        readerBook = parseInt(reader[0], 10);
+                        readerPage = parseInt(reader[1], 10);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            $("#per-page").val(perPage);
+            $("#version").val(version);
+        });
+
+        // function to save cookies
+        function saveCookie() {
+            // expired date for cookie 
+			var expireDate = new Date();
+			// set for one year
+            expireDate.setTime(expireDate.getTime() + (31536000000));
+            // set per page cookie
+            document.cookie = "perPage=" + encodeURIComponent(perPage) + ";expires=" + expireDate.toUTCString() + ";";
+            // set version cookie
+            document.cookie = "version=" + encodeURIComponent($("#version").val()) + ";expires=" + expireDate.toUTCString() + ";";
+            // set reader spot cookie
+            document.cookie = "reader=" + encodeURIComponent(readerBook + "-" + readerPage) + ";expires=" + expireDate.toUTCString() + ";";
+        }
 
         // function to add all books to reader
         function bookSelectPopulate() {
@@ -19,9 +61,9 @@
 
         // Get text and setup object
         function getBibleText() {
-            var bibleText = $("#version").val();
+            version = $("#version").val();
             $.ajax({
-                url : bibleText,
+                url : version,
                 success : function (data) {
                     var currentBook;
                     var bookNum = 0;
@@ -39,6 +81,7 @@
                         }
                     });
                     bookSelectPopulate();
+                    $("#book").val(readerBook);
                     showReader();
                 }
             });
@@ -51,7 +94,7 @@
 
         // function format verse for search
         function formatVerse(verse) {
-            var htmlString = "<span tabindex=0 class='verse-link' data-book='" + verse[0] + "' data-verse='" + verse[1] + "'>" + verse[2] + "</span> ";
+            var htmlString = "<button tabindex=0 class='verse-link' data-book='" + verse[0] + "' data-verse='" + verse[1] + "'>" + verse[2] + "</button> ";
 
             htmlString += verse[3].replace(new RegExp("(" + searchTerm + ")", "gi"), regReplace);
 
@@ -95,19 +138,23 @@
                 var verseIndex = $(this).data("verse");
 
                 // set book
-                $("#book").val(parseInt(bookIndex));
-                readerBook = parseInt(bookIndex);
+                $("#book").val(parseInt(bookIndex), 10);
+                readerBook = parseInt(bookIndex, 10);
 
                 // set page to have verse
-                var pageIndex = Math.floor(parseInt(verseIndex / perPage));
+                var pageIndex = Math.floor(parseInt(verseIndex / perPage), 10);
                 readerPage = pageIndex;
 
+                $('.reader').attr("open", true)
                 showReader();
             })
         }
 
         // function update reader text
         function showReader() {
+            // save cookies
+            saveCookie();
+
             var readerText = bibleObj[readerBook].verses;
             var lastPage = Math.ceil(readerText.length / perPage) - 1;
             if (readerPage > lastPage) {
@@ -141,14 +188,14 @@
 
         // function change per page
         function changePerPage () {
-            perPage = parseInt($("#per-page").val());
+            perPage = parseInt($("#per-page").val(), 10);
             showResults();
             showReader();
         }
 
         // function change the book
         function changeBook () {
-            readerBook = parseInt($("#book").val());
+            readerBook = parseInt($("#book").val(), 10);
             readerPage = 0;
             showReader();
         }
@@ -157,22 +204,25 @@
         function search() {
             found = []; // clear global found array
             searchTerm = $("#Search").val().toLowerCase();
-            
-            for ( var book in bibleObj) {
-                bibleObj[book].verses.forEach(function (verse, index) {
-                    if (verse.toLowerCase().indexOf(searchTerm) !== -1) {
-                        found.push([
-                            book,
-                            index,
-                            bibleObj[book].title,
-                            verse
-                        ]);
-                    }
-                });
+            if (searchTerm.length) {
+                for ( var book in bibleObj) {
+                    bibleObj[book].verses.forEach(function (verse, index) {
+                        if (verse.toLowerCase().indexOf(searchTerm) !== -1) {
+                            found.push([
+                                book,
+                                index,
+                                bibleObj[book].title,
+                                verse
+                            ]);
+                        }
+                    });
+                }
+                $(".search-results").attr("open", true);
+            } else {
+                $(".search-results").attr("open", false);
             }
 
             searchPage = 0;
-            $(".search-results").attr("open", true);
             showResults();
             showReader();
         }
@@ -200,7 +250,7 @@
             }
         });
         $(".search-current-page").on("change", function(e) {
-            searchPage = parseInt($(this).val()) - 1;
+            searchPage = parseInt($(this).val(), 10) - 1;
             showResults();
         })
         $(".reader-next").on("click", function(e) {
@@ -216,7 +266,7 @@
             }
         });
         $(".reader-current-page").on("change", function(e) {
-            readerPage = parseInt($(this).val()) - 1;
+            readerPage = parseInt($(this).val(), 10) - 1;
             showReader();
         })
     });
