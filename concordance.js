@@ -5,8 +5,17 @@
         var bibleObj= {};
         var perPage = 50;
         var found = [];
-        var page = 0;
+        var searchPage = 0;
         var searchTerm;
+        var readerBook = 1;
+        var readerPage = 0;
+
+        // function to add all books to reader
+        function bookSelectPopulate() {
+            for (var bookIndex in bibleObj) {
+                $("#book").append("<option value='" + bookIndex + "'>" + bibleObj[bookIndex].title + "</option>");
+            }
+        }
 
         // Get text and setup object
         function getBibleText() {
@@ -29,15 +38,18 @@
                             };
                         }
                     });
+                    bookSelectPopulate();
+                    showReader();
                 }
             });
         }
-        getBibleText();
 
+        // function to highlight words in search
         function regReplace(match) {
             return "<span class='highlight'>" + match + "</span>"
         }
 
+        // function format verse for search
         function formatVerse(verse) {
             var htmlString = "<span tabindex=0 class='verse-link' data-book='" + verse[0] + "' data-verse='" + verse[1] + "'>" + verse[0] + "</span> ";
 
@@ -46,24 +58,31 @@
             return htmlString;
         }
 
+        // function update search results
         function showResults() {
             var lastPage = Math.ceil(found.length / perPage) - 1;
+            if (searchPage > lastPage) {
+                searchPage = lastPage;
+            }
+            if (searchPage < 0){
+                searchPage = 0;
+            }
 
             $(".search-next").removeClass("disabled");
             $(".search-previous").removeClass("disabled");
-            if (page === 0) {
+            if (searchPage === 0) {
                 $(".search-previous").addClass("disabled");
             }
-            if (lastPage === page) {
+            if (lastPage === searchPage) {
                 $(".search-next").addClass("disabled");
             }
 
-            $(".search-current-page").val(page + 1);
+            $(".search-current-page").val(searchPage + 1);
             $(".search-current-page").attr("max", lastPage + 1);
             $(".search-total-pages").text(lastPage + 1);
             $(".result").html("");
-            $(".result").attr("start", (page * perPage + 1));
-            for (var x = perPage * (page); x < (perPage * (page + 1)); x ++){
+            $(".result").attr("start", (searchPage * perPage + 1));
+            for (var x = perPage * (searchPage); x < (perPage * (searchPage + 1)); x ++){
                 if (x < found.length) {
                     $(".result").append("<li class='found-verse'>" + formatVerse(found[x]) + "</li>");
                 } else {
@@ -72,10 +91,51 @@
             }
         }
 
-        // change per page
+        // function update reader text
+        function showReader() {
+            var readerText = bibleObj[readerBook].verses;
+            var lastPage = Math.ceil(readerText.length / perPage) - 1;
+            if (readerPage > lastPage) {
+                readerPage = lastPage;
+            }
+            if (readerPage < 0) {
+                readerPage = 0;
+            }
+
+            $(".reader-next").removeClass("disabled");
+            $(".reader-previous").removeClass("disabled");
+            if (readerPage === 0) {
+                $(".reader-previous").addClass("disabled");
+            }
+            if (lastPage === readerPage) {
+                $(".reader-next").addClass("disabled");
+            }
+
+            $(".reader-current-page").val(readerPage + 1);
+            $(".reader-current-page").attr("max", lastPage + 1);
+            $(".reader-total-pages").text(lastPage + 1);
+            $(".text").html("");
+            for (var x = perPage * (readerPage); x < (perPage * (readerPage + 1)); x ++){
+                if (x < readerText.length) {
+                    $(".text").append("<div class='reader-verse'>" + readerText[x].replace(new RegExp("(" + searchTerm + ")", "gi"), regReplace) + "</div>");
+                } else {
+                    break;
+                }
+            }
+        }
+
+        // function change per page
         function changePerPage () {
             perPage = parseInt($("#per-page").val());
             showResults();
+            showReader();
+        }
+
+        // function change the book
+        function changeBook () {
+            readerBook = parseInt($("#book").val());
+            readerPage = 0;
+            showReader();
         }
 
         // search function
@@ -95,13 +155,16 @@
                 });
             }
 
-            page = 0;
+            searchPage = 0;
             $(".search-results").attr("open", true);
             showResults();
+            showReader();
         }
 
+        getBibleText();
         $("#version").on("change", getBibleText);
         $("#per-page").on("change", changePerPage);
+        $("#book").on("change", changeBook);
         $("#Search-Button").on("click", search);
         $("#Search").on("keydown", function (event) {
             if (event.keyCode === 13) {
@@ -110,19 +173,35 @@
         });
         $(".search-next").on("click", function(e) {
             if (!$(this).hasClass("disabled")) {
-                page++;
+                searchPage++;
                 showResults();
             }
         });
         $(".search-previous").on("click", function(e) {
             if (!$(this).hasClass("disabled")) {
-                page--;
+                searchPage--;
                 showResults();
             }
         });
         $(".search-current-page").on("change", function(e) {
-            page = parseInt($(this).val()) - 1;
+            searchPage = parseInt($(this).val()) - 1;
             showResults();
+        })
+        $(".reader-next").on("click", function(e) {
+            if (!$(this).hasClass("disabled")) {
+                readerPage++;
+                showReader();
+            }
+        });
+        $(".reader-previous").on("click", function(e) {
+            if (!$(this).hasClass("disabled")) {
+                readerPage--;
+                showReader();
+            }
+        });
+        $(".reader-current-page").on("change", function(e) {
+            readerPage = parseInt($(this).val()) - 1;
+            showReader();
         })
     });
 })(jQuery)
