@@ -7,6 +7,7 @@
         var found = [];
         var searchPage = 0;
         var searchTerm;
+        var searchRegex;
         var readerBook = 1;
         var readerPage = 0;
         var version = "kjv.txt";
@@ -95,8 +96,11 @@
         // function format verse for search
         function formatVerse(verse) {
             var htmlString = "<button tabindex=0 class='verse-link' data-book='" + verse[0] + "' data-verse='" + verse[1] + "'>" + verse[2] + "</button> ";
-
-            htmlString += verse[3].replace(new RegExp("(" + searchTerm + ")", "gi"), regReplace);
+            if ($("#advsearch").is(":checked")) {
+                htmlString += verse[3].replace(new RegExp("(" + searchTerm.replace(/\s/g, "[\\s\\S]{1," + $("#searchspace").val() + "}") + ")", "gi"), regReplace);
+            } else {
+                htmlString += verse[3].replace(new RegExp("(" + searchTerm + ")", "gi"), regReplace);
+            }
 
             return htmlString;
         }
@@ -145,8 +149,14 @@
                 var pageIndex = Math.floor(parseInt(verseIndex / perPage), 10);
                 readerPage = pageIndex;
 
+                // open reader
                 $('.reader').attr("open", true)
                 showReader();
+
+                // scroll down to reader
+                $([document.documentElement, document.body]).animate({
+                    scrollTop: $(".reader").offset().top
+                }, 1000);
             })
         }
 
@@ -179,7 +189,11 @@
             $(".text").html("");
             for (var x = perPage * (readerPage); x < (perPage * (readerPage + 1)); x ++){
                 if (x < readerText.length) {
-                    $(".text").append("<div class='reader-verse'>" + readerText[x].replace(new RegExp("(" + searchTerm + ")", "gi"), regReplace) + "</div>");
+                    if ($("#advsearch").is(":checked")) {
+                        $(".text").append("<div class='reader-verse'>" + readerText[x].replace(new RegExp("(" + searchTerm.replace(/\s/g, "[\\s\\S]{1," + $("#searchspace").val() + "}") + ")", "gi"), regReplace) + "</div>");
+                    } else {
+                        $(".text").append("<div class='reader-verse'>" + readerText[x].replace(new RegExp("(" + searchTerm + ")", "gi"), regReplace) + "</div>");
+                    }
                 } else {
                     break;
                 }
@@ -204,16 +218,29 @@
         function search() {
             found = []; // clear global found array
             searchTerm = $("#Search").val().toLowerCase();
+            searchRegex = new RegExp(searchTerm.replace(/\s/g, "[\\s\\S]{1," + $("#searchspace").val() + "}"), "gi");
             if (searchTerm.length) {
                 for ( var book in bibleObj) {
                     bibleObj[book].verses.forEach(function (verse, index) {
-                        if (verse.toLowerCase().indexOf(searchTerm) !== -1) {
-                            found.push([
-                                book,
-                                index,
-                                bibleObj[book].title,
-                                verse
-                            ]);
+                        if ($("#advsearch").is(":checked")) {
+                            var regexMatch = verse.toLowerCase().match(searchRegex);
+                            if (regexMatch) {
+                                found.push([
+                                    book,
+                                    index,
+                                    bibleObj[book].title,
+                                    verse
+                                ]);
+                            }
+                        } else {
+                            if (verse.toLowerCase().indexOf(searchTerm) !== -1) {
+                                found.push([
+                                    book,
+                                    index,
+                                    bibleObj[book].title,
+                                    verse
+                                ]);
+                            }
                         }
                     });
                 }
@@ -268,6 +295,13 @@
         $(".reader-current-page").on("change", function(e) {
             readerPage = parseInt($(this).val(), 10) - 1;
             showReader();
+        })
+        $("#advsearch").on("change", function() {
+            if ($(this).is(":checked")) {
+                $(".space-between-terms").show();
+            } else {
+                $(".space-between-terms").hide();
+            }
         })
     });
 })(jQuery)

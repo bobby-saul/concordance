@@ -27,35 +27,57 @@
                         <option value="kjv.txt">King James Version</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label for="advsearch">Advanced Search</label>
+                    <input id="advsearch" type="checkbox">
+                </div>
+                <div class="form-group space-between-terms" style="display: none;">
+                    <label for="searchspace">Characters Between Terms</label>
+                    <input id="searchspace" type="number" value="25" min="1" max="250">
+                </div>
             </div>
             <div class="search-form">
-                <input id="Search">
+                <input id="Search" placeholder="Search term">
                 <button id="Search-Button" class="search-button">Search</button>
             </div>
         </div>
 
         <details class="search-results">
-            <summary>Search Results</summary>
-            <ol class="result"></ol>
-            <div class="pager">
-                    <button class="search-previous disabled">Previous</button>
-                    <span class="search-page-count">Page
-                        <input type="number" step="1" min="1" max="1" class="search-current-page" value="1">
-                        /
-                        <span class="search-total-pages">1</span>
-                    </span>
-                    <button class="search-next disabled">Next</button>
+            <summary class="button">Search Results</summary>
+            <div class="search-details">
+                <ol class="result"></ol>
+                <div class="pager">
+                        <button class="search-previous disabled">Previous</button>
+                        <span class="search-page-count">Page
+                            <input type="number" step="1" min="1" max="1" class="search-current-page" value="1">
+                            /
+                            <span class="search-total-pages">1</span>
+                        </span>
+                        <button class="search-next disabled">Next</button>
+                </div>
             </div>
         </details>
         
         <details class="reader" open>
-            <summary>Read Bible</summary>
-            <div class="title">
-                <div class="form-group">
-                    <label for="book">Book</label>
-                    <select id="book">
-                    </select>
+            <summary class="button">Read Bible</summary>
+            <div class="reader-details">
+                <div class="title">
+                    <div class="form-group">
+                        <label for="book">Book</label>
+                        <select id="book">
+                        </select>
+                    </div>
+                    <div class="pager">
+                        <button class="reader-previous disabled">Previous</button>
+                        <span class="reader-page-count">Page
+                            <input type="number" step="1" min="1" max="1" class="reader-current-page" value="1">
+                            /
+                            <span class="reader-total-pages">1</span>
+                        </span>
+                        <button class="reader-next disabled">Next</button>
+                    </div>
                 </div>
+                <div class="text"></div>
                 <div class="pager">
                     <button class="reader-previous disabled">Previous</button>
                     <span class="reader-page-count">Page
@@ -65,16 +87,6 @@
                     </span>
                     <button class="reader-next disabled">Next</button>
                 </div>
-            </div>
-            <div class="text"></div>
-            <div class="pager">
-                <button class="reader-previous disabled">Previous</button>
-                <span class="reader-page-count">Page
-                    <input type="number" step="1" min="1" max="1" class="reader-current-page" value="1">
-                    /
-                    <span class="reader-total-pages">1</span>
-                </span>
-                <button class="reader-next disabled">Next</button>
             </div>
         </details>
     </body>
